@@ -13,7 +13,7 @@ const user = {
   id: 1,
   created_at: '2021-12-13T00:17:29+00:00',
   // 🚨 Add a name here
-  name: '',
+  name: 'Vonta',
   avatar: 'https://thumbs.gfycat.com/NiceRequiredGrunion-size_restricted.gif',
   header: 'https://static.wikia.nocookie.net/naruto/images/5/50/Team_Kakashi.png',
   likes: ['React', 'Anime', 'Traveling', 'Living', 'Tower Defense Games', 'Card Games'],
@@ -22,43 +22,54 @@ const user = {
 }
 
 // 🚨 Create your server
-
-// 🚨 Listen for server start
-beforeAll()
-
-// 🚨 Close server when complete
-afterAll()
-
-test('Should render the header', async () => {
-  render(<App />)
-  const banner = screen.getByRole('banner')
-  const headerImg = screen.getByAltText(/alchemy/i)
-  const profileName = await screen.findByText(user.name)
-
-  expect(banner).toHaveStyle({
-    background: 'var(--grey)',
+const server = setupServer(
+  rest.get('https://uzgiamkrbapxufnwdrja.supabase.co/rest/v1/users', (req, res, ctx) => {
+    const select = req.url.searchParams.get('select')
+    if (select === '*') {
+      return res(ctx.json([user]))
+    }
+    return res(ctx.status(500), ctx.json({ error: `No user found` }))
   })
-  expect(headerImg).toBeInTheDocument()
-  expect(profileName).toBeInTheDocument()
-})
+)
 
-test('Should render the header with Sasuke 🌬️🔥', async () => {
-  const sasuke = {
-    id: 1,
-    created_at: '2021-12-13T00:17:29+00:00',
-    name: 'Sasuke 🌬️🔥',
-    avatar: 'https://thumbs.gfycat.com/NiceRequiredGrunion-size_restricted.gif',
-    header: 'https://static.wikia.nocookie.net/naruto/images/5/50/Team_Kakashi.png',
-    likes: ['React', 'Anime', 'Traveling', 'Living', 'Tower Defense Games', 'Card Games'],
-    motto: 'Res Non Verba',
-    color: 'crimson',
-  }
+describe('App', () => {
+  // 🚨 Listen for server start
+  beforeAll(() => server.listen())
 
-  // 🚨 Use the server to change the response for this test
+  // 🚨 Close server when complete
+  afterAll(() => server.close())
 
-  render(<App />)
+  test('Should render the header', async () => {
+    render(<App />)
+    const banner = screen.getByRole('banner')
+    const headerImg = screen.getByAltText(/alchemy/i)
+    const profileName = await screen.findByText(user.name)
 
-  const profileName = await screen.findByText(sasuke.name)
+    expect(banner).toHaveStyle({
+      background: 'var(--grey)',
+    })
+    expect(headerImg).toBeInTheDocument()
+    expect(profileName).toBeInTheDocument()
+  })
 
-  expect(profileName).toBeInTheDocument()
+  test('Should render the header with Sasuke 🌬️🔥', async () => {
+    const sasuke = {
+      id: 1,
+      created_at: '2021-12-13T00:17:29+00:00',
+      name: 'Sasuke 🌬️🔥',
+      avatar: 'https://thumbs.gfycat.com/NiceRequiredGrunion-size_restricted.gif',
+      header: 'https://static.wikia.nocookie.net/naruto/images/5/50/Team_Kakashi.png',
+      likes: ['React', 'Anime', 'Traveling', 'Living', 'Tower Defense Games', 'Card Games'],
+      motto: 'Res Non Verba',
+      color: 'crimson',
+    }
+
+    // 🚨 Use the server to change the response for this test
+
+    render(<App />)
+
+    const profileName = await screen.findByText(sasuke.name)
+
+    expect(profileName).toBeInTheDocument()
+  })
 })
