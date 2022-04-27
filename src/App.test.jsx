@@ -65,6 +65,15 @@ describe('App', () => {
     }
 
     // 🚨 Use the server to change the response for this test
+    server.use(
+      rest.get('https://uzgiamkrbapxufnwdrja.supabase.co/rest/v1/users', (req, res, ctx) => {
+        // const select = req.url.searchParams.get('select')
+        // if (select === '*') {
+        return res(ctx.json([sasuke]))
+        // }
+        // return res(ctx.status(500), ctx.json({ error: `No user found` }))
+      })
+    )
 
     render(<App />)
 
